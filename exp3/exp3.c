@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 #define INCOMPATIBLE_MATRICES -3
 #define INVALID_SIZE -4
@@ -93,6 +94,28 @@ void printMatrix(Matrix* matr) {
     printf("\n");
 }
 
+char* encrypt(char *plainText, Matrix *key){
+    size_t n = strlen(plainText);
+    char *cipherText = malloc(sizeof(char)*n);
+    for(int i=0; i<n; i+=2){
+        Matrix *block = initializeMatrix(2, 1);
+        block->elements[0][0] = (float) *(plainText+i);
+        block->elements[1][0] = (float) *(plainText+i+1);
+
+        Matrix *encryptedBlock = initializeMatrix(2, 1);
+        int err = product(key, block, encryptedBlock);
+
+        char blockText[2];
+        blockText[0] = encryptedBlock->elements[0][0];
+        blockText[1] = encryptedBlock->elements[1][0];
+        strcat(cipherText, blockText);
+
+        freeMatrix(block);
+        freeMatrix(encryptedBlock);
+    }
+    return cipherText;
+}
+
 int main(){
     Matrix *key = initializeMatrix(2, 2);
     key->elements[0][0] = 1.0;
@@ -105,6 +128,7 @@ int main(){
     inverse(key, invKey);
     printMatrix(invKey);
 
-    
+    char text[4] = "hell";
+    printf("%s", encrypt(text, key));
     return 0;
 }
