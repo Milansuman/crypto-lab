@@ -83,9 +83,7 @@ int inverse(Matrix *matrix, Matrix *inverse){
 }
 
 void printMatrix(Matrix* matr) {
-
     for (int i = 0; i < matr -> rows; i++) {
-
         for (int j = 0; j < matr -> cols; j++) {
             printf("%.2f ", matr -> elements[i][j]);
         }
@@ -95,6 +93,10 @@ void printMatrix(Matrix* matr) {
 }
 
 char* encrypt(char *plainText, Matrix *key){
+    if(strlen(plainText)%2 != 0){
+        plainText = strcat(plainText, " ");
+    }
+
     size_t n = strlen(plainText);
     char *cipherText = malloc(sizeof(char)*n);
     for(int i=0; i<n; i+=2){
@@ -105,15 +107,33 @@ char* encrypt(char *plainText, Matrix *key){
         Matrix *encryptedBlock = initializeMatrix(2, 1);
         int err = product(key, block, encryptedBlock);
 
-        char blockText[2];
-        blockText[0] = encryptedBlock->elements[0][0];
-        blockText[1] = encryptedBlock->elements[1][0];
-        strcat(cipherText, blockText);
+        cipherText[i] = (int) encryptedBlock->elements[0][0];
+        cipherText[i+1] = (int) encryptedBlock->elements[1][0];
 
         freeMatrix(block);
         freeMatrix(encryptedBlock);
     }
     return cipherText;
+}
+
+char* decrypt(char *cipherText, Matrix *invKey){
+    size_t n = strlen(cipherText);
+    char *plainText = malloc(sizeof(char) * n);
+    for(int i=0; i<n; i+=2){
+        Matrix *block = initializeMatrix(2, 1);
+        block->elements[0][0] = (float) *(cipherText+i);
+        block->elements[1][0] = (float) *(cipherText+i+1);
+
+        Matrix *decryptedBlock = initializeMatrix(2, 1);
+        int err = product(invKey, block, decryptedBlock);
+
+        plainText[i] = (int) decryptedBlock->elements[0][0];
+        plainText[i+1] = (int) decryptedBlock->elements[1][0];
+
+        freeMatrix(block);
+        freeMatrix(decryptedBlock);
+    }
+    return plainText;
 }
 
 int main(){
@@ -128,7 +148,7 @@ int main(){
     inverse(key, invKey);
     printMatrix(invKey);
 
-    char text[4] = "hell";
-    printf("%s", encrypt(text, key));
+    char text[] = "hell";
+    printf("%s\n", decrypt(encrypt(text, key), invKey));
     return 0;
 }
