@@ -45,7 +45,7 @@ int product(Matrix *m1, Matrix *m2, Matrix *res){
     for(int i=0; i<res->rows; i++){
         for(int j=0; j<m1->cols; j++){
             for(int k=0; k<m1->cols; k++){
-                res->elements[i][j] += m1->elements[i][k] * m2->elements[k][j];
+                res->elements[i][j] = res->elements[i][j] + m1->elements[i][k] * m2->elements[k][j];
             }
         }
     }
@@ -138,17 +138,18 @@ char* decrypt(char *cipherText, Matrix *invKey){
 
 int main(){
     Matrix *key = initializeMatrix(2, 2);
-    key->elements[0][0] = 1.0;
-    key->elements[0][1] = 2.0;
-    key->elements[1][0] = 3.0;
-    key->elements[1][1] = 4.0;
+    key->elements[0][0] = 4.0;
+    key->elements[0][1] = 3.0;
+    key->elements[1][0] = 1.0;
+    key->elements[1][1] = 1.0;
     printMatrix(key);
 
     Matrix *invKey = initializeMatrix(2, 2);
     inverse(key, invKey);
     printMatrix(invKey);
 
-    char text[] = "hell";
-    printf("%s\n", decrypt(encrypt(text, key), invKey));
+    char text[] = "hello world";
+    printf("ENCRYPTED: %s\n", encrypt(text, key));
+    printf("DECRYPTED: %s\n", decrypt(encrypt(text, key), invKey));
     return 0;
 }
